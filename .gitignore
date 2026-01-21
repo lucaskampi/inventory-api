@@ -1,1 +1,7 @@
 /.venv
+/inventory_api/__pycache__/
+/tests/__pycache__/
+*.pyc
+.DS_Store
+.env
+db.sqlite3
