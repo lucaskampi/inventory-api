@@ -1,91 +1,83 @@
 # Inventory API (Django + Django Ninja)
 
-A RESTful backend for managing entities, implemented in Python using Django and Django Ninja.
+A simple RESTful API for managing `Entity` records, built with **Django** and **Django Ninja**.
 
-Key features
-- CRUD for the `Entity` model (fields: `type`, `name`, `description`, `created_at`).
-- OpenAPI/Swagger documentation provided by Django Ninja (`/api/docs`).
+## Main Features
 
-Entity model
-- `id`: int (auto)
-- `type`: string, required, max 100 characters
-- `name`: string, optional, max 255 characters
-- `description`: text, optional
-- `created_at`: automatic creation timestamp
+- Full CRUD operations for entities
+- Interactive OpenAPI/Swagger documentation at `/api/docs`
+- Tests with pytest + coverage reporting
+- Production-ready structure (PostgreSQL + Docker friendly)
 
-Planned endpoints
-- GET  /api/entities         — list all entities
-- GET  /api/entities/{id}    — retrieve entity by id
-- POST /api/entities         — create a new entity
-- PUT  /api/entities/{id}    — update an existing entity
-- DELETE /api/entities/{id}  — delete an entity
+## Entity Model
 
-Prerequisites
-- Python 3.11+ (or compatible)
-- Virtual environment (`venv`) recommended
+| Field         | Type         | Required | Notes                           |
+|---------------|--------------|----------|---------------------------------|
+| `id`          | int          | auto     | Primary key                     |
+| `type`        | string(100)  | yes      | Entity type                     |
+| `name`        | string(255)  | no       | Descriptive name                |
+| `description` | text         | no       | Detailed description            |
+| `created_at`  | datetime     | auto     | Creation timestamp              |
 
-Development installation
+## API Endpoints
+
+| Method | Endpoint                | Description                     |
+|--------|-------------------------|---------------------------------|
+| GET    | `/api/entities`         | List all entities               |
+| GET    | `/api/entities/{id}`    | Retrieve single entity          |
+| POST   | `/api/entities`         | Create a new entity             |
+| PUT    | `/api/entities/{id}`    | Update an existing entity       |
+| DELETE | `/api/entities/{id}`    | Delete an entity                |
+
+## Prerequisites
+
+- Python 3.11+
+- Virtual environment recommended (`venv`)
+
+## Local Development Setup
+
+### 1. Create and activate virtual environment
 ```bash
+# Linux/macOS:
 python -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
-python manage.py migrate
-python manage.py runserver
-```
 
-Running the project
-
-Unix / macOS
-```bash
-# create and activate virtual environment
-python -m venv .venv
-source .venv/bin/activate
-
-# install dependencies (first time)
-pip install -r requirements.txt
-
-# apply migrations and run the development server
-python manage.py migrate
-python manage.py runserver
-```
-
-Windows (PowerShell)
-```powershell
-# create and activate virtual environment
-python -m venv .venv
+# or on Windows (PowerShell): 
 .\.venv\Scripts\Activate.ps1
+``` 
 
-# install dependencies (first time)
+### 2. Install dependencies
+```bash
 pip install -r requirements.txt
+```
 
-# apply migrations and run the development server
+### 3. Apply migrations
+```bash
 python manage.py migrate
+```
+
+### 4. Run the server:
+```bash
 python manage.py runserver
 ```
 
-Run with ASGI server (uvicorn)
+Interactive API documentation will be available at:  
+**http://localhost:8000/api/docs**
+
+
+## Testing & Coverage
+
+### 1. Run tests with HTML coverage report
 ```bash
-# hot-reload ASGI server (useful for Django Ninja/OpenAPI during development)
-uvicorn inventory_api.asgi:application --reload
+pytest --cov=entities --cov-report=html:coverage_html
 ```
 
-API documentation
-- After starting the server, interactive API docs will be available at: `http://127.0.0.1:8000/api/docs`
-
-Tests
-- Tests use `pytest`/`pytest-django`.
+### 2. View the report
 ```bash
-pytest --cov=.
+python -m http.server --directory coverage_html 8000
 ```
+→ open **http://localhost:8000**
 
-Docker (optional)
-- You can dockerize the application and use a Postgres service for production. Add `Dockerfile` and `docker-compose.yml` for orchestration.
-
-Security notes
-- Do not commit secrets to the repository. Use environment variables or a secrets manager for production credentials.
-
-Suggested next steps
-- Implement the API with Django Ninja (`entities/api.py`) and expose routes in `inventory_api/urls.py`.
-- Write tests for the endpoints and add CI/coverage.
-
-Files edited: `entities/models.py`, `entities/migrations/0001_initial.py`, `inventory_api/settings.py` (registered `entities` app).
+![Coverage Report](./docs/test-screenshots/files_test.png)
+![Coverage Report](./docs/test-screenshots/functions_test.png)
+![Coverage Report](./docs/test-screenshots/classes_test.png)
