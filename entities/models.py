@@ -13,11 +13,25 @@ class Entity(models.Model):
     def __str__(self):
         return f"{self.type}: {self.name or self.pk}"
 
+    @property
+    def unit_price_decimal(self) -> Decimal:
+        """Return the stored unit_price as Decimal."""
+        # ensure we always return a Decimal instance
+        val = self.unit_price
+        try:
+            return Decimal(val)
+        except Exception:
+            return Decimal(str(val or '0'))
+
+    @property
     def unit_price_float(self) -> float:
-        """Return unit price as float for convenience (not used for storage)."""
-        return float(self.unit_price or Decimal('0'))
+        """Return the stored unit_price as float (convenience only)."""
+        return float(self.unit_price_decimal)
 
     def price_cents_truncated(self) -> int:
-        """Return price in cents after truncating to 2 decimal places (no rounding)."""
-        val = (Decimal(self.unit_price or Decimal('0'))).quantize(Decimal('0.01'), rounding=ROUND_DOWN)
+        """Return price in cents after truncating to 2 decimal places (no rounding).
+
+        Example: unit_price = Decimal('1.8640') -> truncates to 1.86 -> returns 186
+        """
+        val = self.unit_price_decimal.quantize(Decimal('0.01'), rounding=ROUND_DOWN)
         return int((val * 100).to_integral_value())
