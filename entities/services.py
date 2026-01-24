@@ -2,8 +2,15 @@ from typing import Dict, Any
 from django.db import transaction
 from .models import Entity
 
-def list_entities():
-    return Entity.objects.all().order_by("-created_at")
+def list_entities(name: str = None, description: str = None, type: str = None):
+    qs = Entity.objects.all()
+    if name:
+        qs = qs.filter(name__icontains=name)
+    if description:
+        qs = qs.filter(description__icontains=description)
+    if type:
+        qs = qs.filter(type__icontains=type)
+    return qs.order_by("-created_at")
 
 def get_entity(entity_id: int) -> Entity:
     return Entity.objects.get(pk=entity_id)
