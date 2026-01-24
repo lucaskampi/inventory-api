@@ -1,6 +1,7 @@
 from typing import Dict, Any
 from django.db import transaction
 from .models import Entity
+from decimal import Decimal, InvalidOperation, ROUND_DOWN
 
 def list_entities(
     name: str = None,
@@ -35,11 +36,32 @@ def get_entity(entity_id: int) -> Entity:
     return Entity.objects.get(pk=entity_id)
 
 def create_entity(data: Dict[str, Any]) -> Entity:
+    # accept `unit_price` (e.g. 50.99) and store as Decimal with 4 decimal places
+    unit = data.pop('unit_price', None)
+    if unit is not None:
+        # accept both 50.99 and '50,99' by normalizing comma to dot
+        unit_str = str(unit).replace(',', '.')
+        try:
+            d = Decimal(unit_str)
+        except (InvalidOperation, ValueError):
+            d = Decimal(float(unit_str))
+        # store with 4 decimal places to preserve measurement precision, truncate (ROUND_DOWN)
+        data['unit_price'] = d.quantize(Decimal('0.0001'), rounding=ROUND_DOWN)
     with transaction.atomic():
         return Entity.objects.create(**data)
 
 def update_entity(entity_id: int, data: Dict[str, Any]) -> Entity:
     with transaction.atomic():
+        # support updating via `unit_price` as well
+        unit = data.pop('unit_price', None)
+        if unit is not None:
+            unit_str = str(unit).replace(',', '.')
+            try:
+                d = Decimal(unit_str)
+            except (InvalidOperation, ValueError):
+                d = Decimal(float(unit_str))
+            data['unit_price'] = d.quantize(Decimal('0.0001'), rounding=ROUND_DOWN)
+
         obj = Entity.objects.get(pk=entity_id)
         for k, v in data.items():
             setattr(obj, k, v)
