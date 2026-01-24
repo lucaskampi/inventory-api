@@ -11,8 +11,8 @@ from . import services
 router = Router()
 
 @router.get("/entities", response=List[EntityOut])
-def list_entities(request):
-    qs = services.list_entities()
+def list_entities(request, name: str = None, description: str = None, type: str = None):
+    qs = services.list_entities(name=name, description=description, type=type)
     return list(qs)
 
 @router.get("/entities/{entity_id}", response=EntityOut)
