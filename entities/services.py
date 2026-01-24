@@ -20,7 +20,10 @@ def list_entities(
     }
 
     def apply(qs, field, value, op):
-        if not value:
+        if value is None:
+            return qs
+        # treat empty string as no-filter
+        if isinstance(value, str) and value.strip() == "":
             return qs
         if op == "notcontains":
             return qs.exclude(**{f"{field}__icontains": value})
@@ -40,13 +43,17 @@ def create_entity(data: Dict[str, Any]) -> Entity:
     unit = data.pop('unit_price', None)
     if unit is not None:
         # accept both 50.99 and '50,99' by normalizing comma to dot
-        unit_str = str(unit).replace(',', '.')
-        try:
-            d = Decimal(unit_str)
-        except (InvalidOperation, ValueError):
-            d = Decimal(float(unit_str))
-        # store with 4 decimal places to preserve measurement precision, truncate (ROUND_DOWN)
-        data['unit_price'] = d.quantize(Decimal('0.0001'), rounding=ROUND_DOWN)
+        unit_str = str(unit).replace(',', '.').strip()
+        # treat empty string as no-value
+        if unit_str == "":
+            unit = None
+        else:
+            try:
+                d = Decimal(unit_str)
+            except (InvalidOperation, ValueError):
+                d = Decimal(float(unit_str))
+            # store with 4 decimal places to preserve measurement precision, truncate (ROUND_DOWN)
+            data['unit_price'] = d.quantize(Decimal('0.0001'), rounding=ROUND_DOWN)
     with transaction.atomic():
         return Entity.objects.create(**data)
 
@@ -55,12 +62,15 @@ def update_entity(entity_id: int, data: Dict[str, Any]) -> Entity:
         # support updating via `unit_price` as well
         unit = data.pop('unit_price', None)
         if unit is not None:
-            unit_str = str(unit).replace(',', '.')
-            try:
-                d = Decimal(unit_str)
-            except (InvalidOperation, ValueError):
-                d = Decimal(float(unit_str))
-            data['unit_price'] = d.quantize(Decimal('0.0001'), rounding=ROUND_DOWN)
+            unit_str = str(unit).replace(',', '.').strip()
+            if unit_str == "":
+                unit = None
+            else:
+                try:
+                    d = Decimal(unit_str)
+                except (InvalidOperation, ValueError):
+                    d = Decimal(float(unit_str))
+                data['unit_price'] = d.quantize(Decimal('0.0001'), rounding=ROUND_DOWN)
 
         obj = Entity.objects.get(pk=entity_id)
         for k, v in data.items():
