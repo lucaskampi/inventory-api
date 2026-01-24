@@ -78,6 +78,4 @@ python -m http.server --directory coverage_html 8000
 ```
 → open **http://localhost:8000**
 
-![Coverage Report](./docs/test-screenshots/files_test.png)
-![Coverage Report](./docs/test-screenshots/functions_test.png)
-![Coverage Report](./docs/test-screenshots/classes_test.png)
+![Coverage Report](./docs/test-screenshots/api-coverage-test-report.png)
