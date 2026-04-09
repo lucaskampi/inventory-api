@@ -1,0 +1,53 @@
+[tool.poetry]
+name = "inventory-api"
+version = "0.1.0"
+description = "A simple RESTful API for managing Entity records, built with Django and Django Ninja"
+authors = ["Your Name <your.email@example.com>"]
+readme = "README.md"
+packages = [{include = "inventory_api"}, {include = "entities"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+Django = "^6.0.1"
+django-ninja = "^1.5.3"
+django-cors-headers = "^4.0.0"
+pydantic = "^2.12.5"
+uvicorn = "^0.40.0"
+asgiref = "^3.11.0"
+h11 = "^0.16.0"
+click = "^8.3.1"
+sqlparse = "^0.5.5"
+typing-extensions = "^4.15.0"
+annotated-types = "^0.7.0"
+pydantic-core = "^2.41.5"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^9.0.2"
+pytest-django = "^4.11.1"
+pytest-cov = "^7.0.0"
+coverage = "^7.13.1"
+typing-inspection = "^0.4.2"
+Pygments = "^2.19.2"
+iniconfig = "^2.3.0"
+packaging = "^25.0"
+pluggy = "^1.6.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "inventory_api.settings"
+testpaths = ["tests"]
+python_files = ["tests.py", "test_*.py", "*_tests.py"]
+
+[tool.coverage.run]
+source = ["entities"]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+]
